@@ -1,0 +1,126 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="Node.js Golang DevOps"><title>Kubernetes 架构浅析 | Ruiyuan's Blog</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Kubernetes 架构浅析</h1><a id="logo" href="/.">Ruiyuan's Blog</a><p class="description">Whole life learning</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Kubernetes 架构浅析</h1><div class="post-meta">Mar 23, 2018</div><div class="clear"><div class="toc-article" id="toc"><div class="toc-title">文章目录</div><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#为什么要用-Kubernetes"><span class="toc-number">1.</span> <span class="toc-text">为什么要用 Kubernetes ?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Kubernetes-组件"><span class="toc-number">2.</span> <span class="toc-text">Kubernetes 组件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Mater-Node"><span class="toc-number">3.</span> <span class="toc-text">Mater Node</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#API-Server"><span class="toc-number">3.1.</span> <span class="toc-text">API Server</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Controller-Manager"><span class="toc-number">3.2.</span> <span class="toc-text">Controller Manager</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Scheduler"><span class="toc-number">3.3.</span> <span class="toc-text">Scheduler</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Woker-Node"><span class="toc-number">4.</span> <span class="toc-text">Woker Node</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Kubelet"><span class="toc-number">4.1.</span> <span class="toc-text">Kubelet</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Kube-Proxy"><span class="toc-number">4.2.</span> <span class="toc-text">Kube Proxy</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#结语"><span class="toc-number">5.</span> <span class="toc-text">结语</span></a></li></ol></div></div><div class="post-content"><p>最近研究了一段时间的 Kubernetes，在我们的测试环境上也搭建了一个简单的集群来学习相关的知识。月初的时候在团队做了一次 Kubernetes 架构分享，此次整理成文章记录下。</p>
+<h3 id="为什么要用-Kubernetes"><a href="#为什么要用-Kubernetes" class="headerlink" title="为什么要用 Kubernetes ?"></a>为什么要用 Kubernetes ?</h3><p>Kubernetes 作为一个容器管理平台，优点足够足够的多，在任意的相关文章中都可以看到，比如，自动化容器的部署和复制、服务发现、负载均衡、滚动更新、自动缩放等等… ，但在我看来最根本的一个理由是，IT 从来都是一个由新技术驱动的行业，况且这还是 Google 十几年以来大规模应用容器技术的经验积累和升华的一个重要成果。</p>
+<h3 id="Kubernetes-组件"><a href="#Kubernetes-组件" class="headerlink" title="Kubernetes 组件"></a>Kubernetes 组件</h3><p>为了理解 Kubernetes 的核心原理，我们先大致看下它的整体架构图，主要分为了两个大块，主节点和工作节点，每个大块又运行着不同的组件，下面我们会具体说说每个组件各自的职责。</p>
+<p><img src="http://statics.zhuishushenqi.com/post/152178480852096" alt=""></p>
+<h3 id="Mater-Node"><a href="#Mater-Node" class="headerlink" title="Mater Node"></a>Mater Node</h3><p>主节点负责管理整个 k8s 集群，是所有管理任务的入口，检测并且响应集群事件。</p>
+<h4 id="API-Server"><a href="#API-Server" class="headerlink" title="API Server"></a>API Server</h4><p>顾名思义，提供增删改查及 watch 的 API 接口，服务对象是 Kubernetes 中各类资源，如 Pod、Service 等，在图中可以看到 API Server 是整个集群内部各个功能模块之间数据交互和通信的中心枢纽，是整个系统的数据总线和数据中心。</p>
+<p>​API Server 通过一个名为 kube-apiserver 的进程提供服务，运行在 Master 节点上，默认情况下，是在本机的 8080 端口提供服务，我们也可以同时开启 HTTPS 安全端口加强接口访问的安全性。</p>
+<p>​我们通常情况下使用 kubectl ，或使用 REST 接口访问 API ，当请求到达时，会经历几个阶段，如下图中所示：</p>
+<p><img src="http://statics.zhuishushenqi.com/post/152178489225754" alt=""></p>
+<ul>
+<li><p>Authentication（身份认证）</p>
+<blockquote>
+<p>方式有很多中，可以同时指定多个模块，每个认证模块都会按顺序进行，直到其中一个成功，就会进入下一步。图中我们可以看出，k8s 的客户端有两类，一种是普通用户，一种是集群内的 Pod，虽然这种两种客户端认证机制略有不同，但无论哪一种都需要依次经历三个步骤。</p>
+</blockquote>
+<ul>
+<li><p>证书认证</p>
+</li>
+<li><p>Token 认证</p>
+</li>
+<li><p>用户名密码</p>
+</li>
+<li><p>JWT Token （用于 Service Account ）</p>
+</li>
+</ul>
+</li>
+<li><p>Authorization（授权）</p>
+<blockquote>
+<p>授权策略也支持开启多个授权插件，只要一个验证通过即可。</p>
+</blockquote>
+<ul>
+<li><p>Node  配合 NodeRestriction 准入控制限制 kubelet 访问相关资源</p>
+</li>
+<li><p>ABAC  基于属性的授权策略</p>
+</li>
+<li><p>RBAC  基于角色的授权策略</p>
+</li>
+<li><p>Webhook  通过外部提供的 HTTPS 服务进行授权</p>
+</li>
+</ul>
+</li>
+<li><p>AdmissionControl（准入控制）</p>
+<blockquote>
+<p>准入控制用来对请求做进一步的验证或添加默认参数，是一组插件列表，请求时，每个准入插件按照一定顺序执行，如果有一个拒绝了此次请求，那么请求会立即失败。</p>
+</blockquote>
+<ul>
+<li><p>ServiceAccount  为 Pod 添加相应的认证信息</p>
+</li>
+<li><p>ResourceQuota  Namespace 上的配额管理</p>
+</li>
+<li><p>LimitRanger  Pod和容器的配额管理</p>
+</li>
+<li><p>NamespaceLifecycle</p>
+</li>
+<li><p>… 其他的就不一一列举了</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>上面只是简单介绍了下 API 访问控制涉及到的一些功能模块，具体到每个里面其实还是很深的细节值得挖掘，有机会的话会单独整理一篇文章详细介绍这里的内容。</p>
+<h4 id="Controller-Manager"><a href="#Controller-Manager" class="headerlink" title="Controller Manager"></a>Controller Manager</h4><p>集群内部的管理控制中心，一系列控制器的集合，主要工作是通过 API Server 监控整个集群的状态，并确保集群处于预期的工作状态。</p>
+<p>一个典型的控制器例子就是副本控制器（Replication Controller），它主要负责控制集群中 Pod 的数量（数量由用户配置），如果发现数量超过预设值，则会销毁一些 Pod，反之，创建新的 Pod 副本。</p>
+<p>​还有个例子 Endpoint Controller，在这之前我们先看下 Service、Endpoints 与 Pod 的关系</p>
+<p><img src="http://statics.zhuishushenqi.com/post/152178495275310" alt=""></p>
+<p>如图中所示，Endpoints 表示了一个 Service 对应的所有 Pod 副本的访问地址，而 Endpoints Controller 就是负责监听 Service 和所对应 Pod 副本的变化，进而生成和维护所有 Endpoints 对象的控制器。</p>
+<p>​还有其他的控制器，比如节点控制器、命名空间控制器、配额控制器、令牌控制器等，在这里就不深入说明了。</p>
+<h4 id="Scheduler"><a href="#Scheduler" class="headerlink" title="Scheduler"></a>Scheduler</h4><p>Kubernetes 的调度器，核心功能是监听 API Server 来获取未绑定节点的 Pod，把它绑定到合适的节点上，然后通过 API Server 将绑定信息写入 etcd。调度原理说起来很简单，但是要编写一个优秀的调度器却不容易，有很多问题需要考虑，如何保证每个节点都能分配到资源？如何高效利用集群资源等。</p>
+<p>​Kubernetes Scheduler 当前提供的默认调度流程分为以下两步：</p>
+<p><img src="http://statics.zhuishushenqi.com/post/152178500602936" alt=""></p>
+<ol>
+<li><p>预选调度过程，即遍历所有的目标Node，筛选出符合条件的候选节点。Kubernetes 里内置了多种预选策略供用户选择。</p>
+<ul>
+<li><p>NoDiskConflict   判断 Pod 指定的 Volume 和节点上已经挂载的 Volume 是否冲突</p>
+</li>
+<li><p>PodFitsResource    判断节点的资源是否满足 Pod 的需求（内存和 CPU ）</p>
+</li>
+<li><p>PodSelectorMatches   判断节点是否包含 Pod 的标签选择器指定的标签</p>
+</li>
+<li><p>PodFitsHost   判断 Pod 指定的节点名称与备选节点名称是否一致</p>
+</li>
+<li><p>CheckNodeLabelPresence   （需要用户配置）如果节点存在此策略列出的标签时，根据配置是否选择该节点</p>
+</li>
+<li><p>CheckServiceAffinity    （需要用户配置）判断节点是否包含策略指定的标签，或包含和 Pod 同 Service 和 Namespace 下其他 Pod 所在节点的标签列表</p>
+</li>
+<li><p>PodFitsPorts    判断 Pod 所用端口是否在节点上已被占用</p>
+</li>
+</ul>
+</li>
+<li><p>确定最优节点，在第一步的基础上，采用优选策略计算出每个候选节点的积分，积分最高者胜出。</p>
+<ul>
+<li><p>LeastRequestedPriority   从备选节点列表中选出资源消耗最小的节点（内存和 CPU ）</p>
+</li>
+<li><p>BalancedResourceAllocation   从备选节点列表中选出各项资源使用率最均衡的节点</p>
+</li>
+<li><p>ImageLocalityPriority   倾向于已经有 Pod 要使用镜像的节点，镜像越大，分数越高</p>
+</li>
+<li><p>CalculateNodeLabelPriority   （需要用户配置）如果节点包含策略指定标签时，根据配置是否选择该节点</p>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="Woker-Node"><a href="#Woker-Node" class="headerlink" title="Woker Node"></a>Woker Node</h3><p>Node 节点是 Kubernetes 集群中的工作负载节点，Pod 就运行在 Node 节点上。</p>
+<h4 id="Kubelet"><a href="#Kubelet" class="headerlink" title="Kubelet"></a>Kubelet</h4><p>每个节点上都会启动一个 Kubelet 服务进程，主要来处理 Master 节点下发到本节点的任务，管理 Pod 及 Pod 中的容器。还会在 API Server 上注册节点自身信息，定期像 Master 汇报节点资源使用情况。</p>
+<ul>
+<li><p>节点管理</p>
+</li>
+<li><p>Pod 管理</p>
+<p>Kubelet 通过三种方式获取自身 Node 上所要运行的 Pod 清单。</p>
+<ol>
+<li><p>文件目录，默认目录是 /etc/kubernetes/manifests/</p>
+</li>
+<li><p>HTTP接口，通过 –manifest-url 参数设置</p>
+</li>
+<li><p>API Server，监听接口，同步自身节点 Pod 目录</p>
+</li>
+</ol>
+<p>前两种情况创建的 Pod 叫做 Static Pod，不受集群管理，但是 Kubelet会将 Static Pod 状态汇报到 API Server，然后 API Server 会创建一个镜像 Pod 与之匹配，可以检测到状态变化，但并不能通过接口去修改操作它。</p>
+</li>
+<li><p>容器健康检查</p>
+<p>通过两类探针来检查容器的健康状态，一个是 LivenessProbe 探针，用于判断容器是否健康，一个是 ReadinessProbe 探针，用于判断容器是否启动完成，并准备接受请求。</p>
+</li>
+</ul>
+<h4 id="Kube-Proxy"><a href="#Kube-Proxy" class="headerlink" title="Kube Proxy"></a>Kube Proxy</h4><p>当我们在集群中创建了 Pod 后，可以获得这个 Pod ip 地址，然后在集群内部可以通过 PodIP:Port 来获取对应的服务，但是 Pod 是经常变化的，每次更新 ip 地址可能发生变化，而且水平扩展后，会有新的 Pod 被创建出来，出现新的 ip 地址，所以为了解决这个问题，Kubernetes 抽象出了 Service 的概念。</p>
+<p>​每个 Service 都有一个固定的虚拟 ip，客户端通过访问这个 ip 来访问服务，Service 则负责将请求转发到后端的 Pod 上，并且能起到负载均衡的作用。</p>
+<p>​实现 Service 这个功能的关键就是 kube-proxy，kube-proxy 通过查询和监听 API Server 中 Service 和 Endpoints 的变化，通过管理 Iptables 来实现网络的转发，所以，由于 kube-proxy 的作用，客户端无需关心后端有几个 Pod，整个通信的过程，负载均衡，水平扩展都是透明的。</p>
+<h3 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h3><p>此次从整体的角度介绍了 Kubernetes 中各个组件的作用，一些深入的细节部分有机会在整理出来分享给大家。Kubernetes 各个组件没有复杂的交互，每个模块只做好自己事情，看似简单的设计却支撑着强大分布式系统有序而又稳定的工作，这种设计思想十分值得我们学习。</p>
+</div><div class="tags"><a href="/tags/Kubernetes/">Kubernetes</a></div><div class="post-nav"><a class="pre" href="/2018/04/18/golang-forRang/">Golang 的 for-range 循环中指针和值的区别</a><a class="next" href="/2017/10/19/hello-world/">Hello World</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://localhost:4000"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/Kubernetes/" style="font-size: 15px;">Kubernetes</a> <a href="/tags/Golang/" style="font-size: 15px;">Golang</a> <a href="/tags/Prometheus/" style="font-size: 15px;">Prometheus</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/06/14/prometheus/">基于 Prometheus 的监控实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/18/golang-forRang/">Golang 的 for-range 循环中指针和值的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/23/Kubernetes-architecture/">Kubernetes 架构浅析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/hello-world/">Hello World</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">Ruiyuan's Blog.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
