@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Yuan&#39;s Blog</title>
+  
+  <subtitle>Whole life learning</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://localhost:4000/"/>
+  <updated>2018-09-06T06:57:09.349Z</updated>
+  <id>http://localhost:4000/</id>
+  
+  <author>
+    <name>Ruiyuan Wang</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Google v8 源码编译</title>
+    <link href="http://localhost:4000/2018/09/04/v8-build/"/>
+    <id>http://localhost:4000/2018/09/04/v8-build/</id>
+    <published>2018-09-04T09:33:39.000Z</published>
+    <updated>2018-09-06T06:57:09.349Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;想深入学习 Node.js 绕不开 v8，要学习 v8 那只能从编译它开始了。我是在 mac 环境下编译的，以下大部分命令都需要在翻墙状态下完成😣。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;下载工具 depot_tools&lt;/p&gt;
+&lt;figure
+        
+      
+    
+    </summary>
+    
+    
+      <category term="v8" scheme="http://localhost:4000/tags/v8/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>基于 Prometheus 的监控实践</title>
+    <link href="http://localhost:4000/2018/06/14/prometheus/"/>
+    <id>http://localhost:4000/2018/06/14/prometheus/</id>
+    <published>2018-06-14T06:13:45.000Z</published>
+    <updated>2018-09-04T07:46:31.501Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h3 id=&quot;初衷&quot;&gt;&lt;a href=&quot;#初衷&quot; class=&quot;headerlink&quot; title=&quot;初衷&quot;&gt;&lt;/a&gt;初衷&lt;/h3&gt;&lt;p&gt;之前团队一直使用 APM (newrelic、tingyun等)
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Prometheus" scheme="http://localhost:4000/tags/Prometheus/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Golang 的 for-range 循环中指针和值的区别</title>
+    <link href="http://localhost:4000/2018/04/18/golang-forRang/"/>
+    <id>http://localhost:4000/2018/04/18/golang-forRang/</id>
+    <published>2018-04-18T07:25:36.000Z</published>
+    <updated>2018-09-04T07:46:24.759Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;我们先看下面的一段代码&lt;/p&gt;
+&lt;figure class=&quot;highlight go&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Golang" scheme="http://localhost:4000/tags/Golang/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Kubernetes 架构浅析</title>
+    <link href="http://localhost:4000/2018/03/23/Kubernetes-architecture/"/>
+    <id>http://localhost:4000/2018/03/23/Kubernetes-architecture/</id>
+    <published>2018-03-23T06:11:25.000Z</published>
+    <updated>2018-09-04T07:46:15.572Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;最近研究了一段时间的 Kubernetes，在我们的测试环境上也搭建了一个简单的集群来学习相关的知识。月初的时候在团队做了一次 Kubernetes 架构分享，此次整理成文章记录下。&lt;/p&gt;
+&lt;h3 id=&quot;为什么要用-Kubernetes&quot;&gt;&lt;a
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Kubernetes" scheme="http://localhost:4000/tags/Kubernetes/"/>
+    
+  </entry>
+  
+</feed>

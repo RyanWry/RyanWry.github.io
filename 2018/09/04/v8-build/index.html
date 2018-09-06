@@ -1,0 +1,95 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="Node.js Golang DevOps"><title>Google v8 源码编译 | Yuan's Blog</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Google v8 源码编译</h1><a id="logo" href="/.">Yuan's Blog</a><p class="description">Whole life learning</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Google v8 源码编译</h1><div class="post-meta">Sep 4, 2018</div><a class="disqus-comment-count" data-disqus-identifier="2018/09/04/v8-build/" href="/2018/09/04/v8-build/#disqus_thread"></a><div class="post-content"><p>想深入学习 Node.js 绕不开 v8，要学习 v8 那只能从编译它开始了。我是在 mac 环境下编译的，以下大部分命令都需要在翻墙状态下完成😣。</p>
+<ol>
+<li><p>下载工具 depot_tools</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置环境变量</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">export PATH=`pwd`/depot_tools:"$PATH"</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>检查并更新工具</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gclient</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>找一个你要下载 v8 源码的目录进去后执行下面操作，时间会有点长</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fetch v8</span><br><span class="line">cd v8</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>确认你在 v8 源码目录中，通过下面命令下载所有构建依赖项</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gclient sync</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>仅在 Linux 环境下</strong>需要此操作</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./build/install-build-deps.sh</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>生成构建文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tools/dev/v8gen.py x64.release</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置编译参数，我们需要嵌入 v8 ，需要生成静态库</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">gn args out.gn/x64.release</span><br><span class="line"></span><br><span class="line">将下面设置加入配置中</span><br><span class="line">is_component_build = false</span><br><span class="line">v8_static_library = true</span><br><span class="line">use_custom_libcxx = false</span><br><span class="line">use_custom_libcxx_for_host = false</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编译源码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ninja -C out.gn/x64.release</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编译完成后，在 out.gn/x64.release 目录下查看编译产生的二进制文件及静态库</p>
+<p>我们需要下面一些文件来进行嵌入开发</p>
+<ul>
+<li><p>快照文件，用于加快创建 Javascript 引擎</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">natives_blob.bin</span><br><span class="line">snapshot_blob.bin</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>静态库，位于 out.gn/x64.release/obj 目录下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">libv8_base.a</span><br><span class="line">libv8_external_snapshot.a</span><br><span class="line">libv8_init.a</span><br><span class="line">libv8_initializers.a</span><br><span class="line">libv8_libbase.a</span><br><span class="line">libv8_libplatform.a</span><br><span class="line">libv8_libsampler.a</span><br><span class="line">libv8_nosnapshot.a</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>icu 静态库，out.gn/x64.release/obj/third_party/icu 目录下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">libicui18n.a</span><br><span class="line">libicuuc.a</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>调试库，out.gn/x64.release/obj/src/inspector 目录下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">libinspector.a</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ol>
+<p>上面的流程中，任意一条命令执行有误，都有可能会导致最终编译失败，我们要注意每一条命令的输出信息。</p>
+<p>我在第七步  <code>tools/dev/v8gen.py x64.release</code> 时发生过错误，使用 <code>-vv</code>  查看具体错误信息，发现是系统没有安装  pkg-config 导致的，<code>brew install pkg-config</code> 后解决问题。</p>
+</div><div class="tags"><a href="/tags/v8/">v8</a></div><div class="post-nav"><a class="next" href="/2018/06/14/prometheus/">基于 Prometheus 的监控实践</a></div><div id="disqus_thread"><div class="btn_click_load"><button class="disqus_click_btn">阅读评论（请确保 Disqus 可以正常加载）</button></div><script type="text/javascript">var disqus_config = function () {
+    this.page.url = 'http://localhost:4000/2018/09/04/v8-build/';
+    this.page.identifier = '2018/09/04/v8-build/';
+    this.page.title = 'Google v8 源码编译';
+  };</script><script type="text/javascript" id="disqus-lazy-load-script">$.ajax({
+url: 'https://disqus.com/next/config.json',
+timeout: 2500,
+type: 'GET',
+success: function(){
+  var d = document;
+  var s = d.createElement('script');
+  s.src = '//daivd.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', + new Date());
+  (d.head || d.body).appendChild(s);
+  $('.disqus_click_btn').css('display', 'none');
+},
+error: function() {
+  $('.disqus_click_btn').css('display', 'block');
+}
+});</script><script type="text/javascript" id="disqus-click-load">$('.btn_click_load').click(() => {  //click to load comments
+    (() => { // DON'T EDIT BELOW THIS LINE
+        var d = document;
+        var s = d.createElement('script');
+        s.src = '//daivd.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', + new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+    $('.disqus_click_btn').css('display','none');
+});</script><script type="text/javascript" id="disqus-count-script">$(function() {
+     var xhr = new XMLHttpRequest();
+     xhr.open('GET', '//disqus.com/next/config.json', true);
+     xhr.timeout = 2500;
+     xhr.onreadystatechange = function () {
+       if (xhr.readyState === 4 && xhr.status === 200) {
+         $('.post-meta .post-comments-count').show();
+         var s = document.createElement('script');
+         s.id = 'dsq-count-scr';
+         s.src = 'https://daivd.disqus.com/count.js';
+         s.async = true;
+         (document.head || document.body).appendChild(s);
+       }
+     };
+     xhr.ontimeout = function () { xhr.abort(); };
+     xhr.send(null);
+   });
+</script></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://localhost:4000"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/Kubernetes/" style="font-size: 15px;">Kubernetes</a> <a href="/tags/Golang/" style="font-size: 15px;">Golang</a> <a href="/tags/Prometheus/" style="font-size: 15px;">Prometheus</a> <a href="/tags/v8/" style="font-size: 15px;">v8</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/09/04/v8-build/">Google v8 源码编译</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/06/14/prometheus/">基于 Prometheus 的监控实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/18/golang-forRang/">Golang 的 for-range 循环中指针和值的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/23/Kubernetes-architecture/">Kubernetes 架构浅析</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-comment-o"> 最近评论</i></div><script type="text/javascript" src="//daivd.disqus.com/recent_comments_widget.js?num_items=5&amp;hide_avatars=1&amp;avatar_size=32&amp;excerpt_length=20&amp;hide_mods=1"></script></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">Ruiyuan Wang.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
