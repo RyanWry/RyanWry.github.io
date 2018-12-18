@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://localhost:4000/"/>
-  <updated>2018-09-06T06:57:09.349Z</updated>
+  <updated>2018-12-18T11:55:15.099Z</updated>
   <id>http://localhost:4000/</id>
   
   <author>
@@ -15,6 +15,86 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>访问 Kubernetes API - Admission Control（三）</title>
+    <link href="http://localhost:4000/2018/12/18/k8s-admission/"/>
+    <id>http://localhost:4000/2018/12/18/k8s-admission/</id>
+    <published>2018-12-18T11:40:00.000Z</published>
+    <updated>2018-12-18T11:55:15.099Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;准入控制器是运行在 Authention 和 Authoriztion 之后，对象持久化之前，拦截 API Server 的请求对请求资源进行修改或者验证的一组插件列表，必须在 API Server 启动时配置。&lt;/p&gt;
+&lt;p&gt;在 1.10+
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Kubernetes" scheme="http://localhost:4000/tags/Kubernetes/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>访问 Kubernetes API - Authorization（二）</title>
+    <link href="http://localhost:4000/2018/11/02/k8s-authorization/"/>
+    <id>http://localhost:4000/2018/11/02/k8s-authorization/</id>
+    <published>2018-11-02T08:49:51.000Z</published>
+    <updated>2018-12-18T11:57:13.072Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;经过第一步的身份认证后，请求带着认证后的用户信息来到授权模块&lt;/p&gt;
+&lt;h2 id=&quot;请求属性&quot;&gt;&lt;a href=&quot;#请求属性&quot; class=&quot;headerlink&quot; title=&quot;请求属性&quot;&gt;&lt;/a&gt;请求属性&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;user -
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Kubernetes" scheme="http://localhost:4000/tags/Kubernetes/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>访问 Kubernetes API - Authentication（一）</title>
+    <link href="http://localhost:4000/2018/10/15/k8s-authentication/"/>
+    <id>http://localhost:4000/2018/10/15/k8s-authentication/</id>
+    <published>2018-10-15T07:39:29.000Z</published>
+    <updated>2018-12-18T12:21:08.045Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;以下两种用户类型都可以合法访问 API &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Normal User&lt;/li&gt;
+&lt;li&gt;ServiceAccount managed by kubernetes&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;普通用户由外部服务管理，集群管理员给他们分发 private
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Kubernetes" scheme="http://localhost:4000/tags/Kubernetes/"/>
+    
+  </entry>
   
   <entry>
     <title>Google v8 源码编译</title>
