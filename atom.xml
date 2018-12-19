@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://localhost:4000/"/>
-  <updated>2018-12-18T11:55:15.099Z</updated>
+  <updated>2018-12-19T08:00:03.931Z</updated>
   <id>http://localhost:4000/</id>
   
   <author>
@@ -15,6 +15,33 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>当我们使用 Helm 时，可能需要考虑一些安全问题</title>
+    <link href="http://localhost:4000/2018/12/19/helm-security/"/>
+    <id>http://localhost:4000/2018/12/19/helm-security/</id>
+    <published>2018-12-19T07:45:27.000Z</published>
+    <updated>2018-12-19T08:00:03.931Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;使用默认的安装命令 helm init 可以快速安装 Tiller，但是默认的安装方式没有任何安全性的配置。&lt;/p&gt;
+&lt;p&gt;默认的安装方式将 Tiller 安装在 kube-system 下，并赋予它 cluster-admin
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Kubernetes" scheme="http://localhost:4000/tags/Kubernetes/"/>
+    
+      <category term="Helm" scheme="http://localhost:4000/tags/Helm/"/>
+    
+  </entry>
   
   <entry>
     <title>访问 Kubernetes API - Admission Control（三）</title>
@@ -128,7 +155,7 @@
     <link href="http://localhost:4000/2018/06/14/prometheus/"/>
     <id>http://localhost:4000/2018/06/14/prometheus/</id>
     <published>2018-06-14T06:13:45.000Z</published>
-    <updated>2018-09-04T07:46:31.501Z</updated>
+    <updated>2018-12-19T07:55:22.240Z</updated>
     
     <summary type="html">
     

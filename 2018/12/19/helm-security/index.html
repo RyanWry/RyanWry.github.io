@@ -1,0 +1,64 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="Node.js Golang DevOps"><title>当我们使用 Helm 时，可能需要考虑一些安全问题 | Yuan's Blog</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">当我们使用 Helm 时，可能需要考虑一些安全问题</h1><a id="logo" href="/.">Yuan's Blog</a><p class="description">Whole life learning</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">当我们使用 Helm 时，可能需要考虑一些安全问题</h1><div class="post-meta">Dec 19, 2018</div><a class="disqus-comment-count" data-disqus-identifier="2018/12/19/helm-security/" href="/2018/12/19/helm-security/#disqus_thread"></a><div class="clear"><div class="toc-article" id="toc"><div class="toc-title">文章目录</div><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#RBAC"><span class="toc-number">1.</span> <span class="toc-text">RBAC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GRPC-Endpoint"><span class="toc-number">2.</span> <span class="toc-text">GRPC Endpoint</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">3.</span> <span class="toc-text">Ref</span></a></li></ol></div></div><div class="post-content"><p>使用默认的安装命令 helm init 可以快速安装 Tiller，但是默认的安装方式没有任何安全性的配置。</p>
+<p>默认的安装方式将 Tiller 安装在 kube-system 下，并赋予它 cluster-admin 的权限，可以操作集群中任意资源。</p>
+<h2 id="RBAC"><a href="#RBAC" class="headerlink" title="RBAC"></a>RBAC</h2><p>在安装 Tiller 时，可以指定其使用的 ServiceAccount 进行 RBAC 授权。</p>
+<p>但是有个问题是，Tiller 操作集群资源都是使用其自身凭证和权限执行，并不考虑 Helm 客户端的权限。</p>
+<p>也就说 kubectl 只要能连接集群并且只需要有 pods 和 portforward 权限，那么 Helm 就可以通过 kubectl 连接到 Tiller，进而使用 Tiller 的权限操作集群资源。</p>
+<p>如果我们需要用户可以使用 Helm，但是仍要限制对集群的操作，该怎么做？目前的方法对不同的用户群组创建的不同的 ServiceAccount，使用不同的 RBAC 策略，绑定到对应的 TIller 实例上，通过控制用户访问哪个 Tiller 来确保操作。这样带来的问题也很明显，集群里有多个 Tiller 实例难以管理。</p>
+<p>社区也在考虑将 RBAC 权限控制从 Tiller 服务端移到 Helm 客户端，每个操作都是由用户请求的，而不是 TIller。</p>
+<h2 id="GRPC-Endpoint"><a href="#GRPC-Endpoint" class="headerlink" title="GRPC Endpoint"></a>GRPC Endpoint</h2><p>helm 客户端通过 GRPC 和 Tiller 通信，Tiller 提供的 GRPC 端口在集群内部无需通过身份验证即可访问，这意味着集群内的任意 Pod 都可以使用此端口连接 Tiller 进而操作集群资源，创建 ClusterRole 授予任意 Pod 升级权限等等，GMAE OVER 😭。</p>
+<p>在集群外访问时 Helm 需要通过 API Server 进行身份验证，才可以访问 Tiller。</p>
+<p>有两种方式保护 Tiller 端口</p>
+<ul>
+<li>开启 TLS</li>
+<li>本地运行 Tiller，Helm 客户端通过 port forward 连接不受影响</li>
+</ul>
+<h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ul>
+<li><a href="https://docs.helm.sh/using_helm/#securing-your-helm-installation" target="_blank" rel="noopener">Helm Docs</a></li>
+<li><a href="https://engineering.bitnami.com/articles/helm-security.html" target="_blank" rel="noopener">Bitnami Engineering Portal: Exploring the Security of Helm</a></li>
+</ul>
+</div><div class="tags"><a href="/tags/Kubernetes/">Kubernetes</a><a href="/tags/Helm/">Helm</a></div><div class="post-nav"><a class="next" href="/2018/12/18/k8s-admission/">访问 Kubernetes API - Admission Control（三）</a></div><div id="disqus_thread"><div class="btn_click_load"><button class="disqus_click_btn">阅读评论（请确保 Disqus 可以正常加载）</button></div><script type="text/javascript">var disqus_config = function () {
+    this.page.url = 'http://localhost:4000/2018/12/19/helm-security/';
+    this.page.identifier = '2018/12/19/helm-security/';
+    this.page.title = '当我们使用 Helm 时，可能需要考虑一些安全问题';
+  };</script><script type="text/javascript" id="disqus-lazy-load-script">$.ajax({
+url: 'https://disqus.com/next/config.json',
+timeout: 2500,
+type: 'GET',
+success: function(){
+  var d = document;
+  var s = d.createElement('script');
+  s.src = '//daivd.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', + new Date());
+  (d.head || d.body).appendChild(s);
+  $('.disqus_click_btn').css('display', 'none');
+},
+error: function() {
+  $('.disqus_click_btn').css('display', 'block');
+}
+});</script><script type="text/javascript" id="disqus-click-load">$('.btn_click_load').click(() => {  //click to load comments
+    (() => { // DON'T EDIT BELOW THIS LINE
+        var d = document;
+        var s = d.createElement('script');
+        s.src = '//daivd.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', + new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+    $('.disqus_click_btn').css('display','none');
+});</script><script type="text/javascript" id="disqus-count-script">$(function() {
+     var xhr = new XMLHttpRequest();
+     xhr.open('GET', '//disqus.com/next/config.json', true);
+     xhr.timeout = 2500;
+     xhr.onreadystatechange = function () {
+       if (xhr.readyState === 4 && xhr.status === 200) {
+         $('.post-meta .post-comments-count').show();
+         var s = document.createElement('script');
+         s.id = 'dsq-count-scr';
+         s.src = 'https://daivd.disqus.com/count.js';
+         s.async = true;
+         (document.head || document.body).appendChild(s);
+       }
+     };
+     xhr.ontimeout = function () { xhr.abort(); };
+     xhr.send(null);
+   });
+</script></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"><input type="hidden" name="sitesearch" value="http://localhost:4000"></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/Kubernetes/" style="font-size: 15px;">Kubernetes</a> <a href="/tags/Golang/" style="font-size: 15px;">Golang</a> <a href="/tags/Helm/" style="font-size: 15px;">Helm</a> <a href="/tags/Prometheus/" style="font-size: 15px;">Prometheus</a> <a href="/tags/v8/" style="font-size: 15px;">v8</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/12/19/helm-security/">当我们使用 Helm 时，可能需要考虑一些安全问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/12/18/k8s-admission/">访问 Kubernetes API - Admission Control（三）</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/11/02/k8s-authorization/">访问 Kubernetes API - Authorization（二）</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/10/15/k8s-authentication/">访问 Kubernetes API - Authentication（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/09/04/v8-build/">Google v8 源码编译</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/06/14/prometheus/">基于 Prometheus 的监控实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/18/golang-forRang/">Golang 的 for-range 循环中指针和值的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/23/Kubernetes-architecture/">Kubernetes 架构浅析</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-comment-o"> 最近评论</i></div><script type="text/javascript" src="//daivd.disqus.com/recent_comments_widget.js?num_items=5&amp;hide_avatars=1&amp;avatar_size=32&amp;excerpt_length=20&amp;hide_mods=1"></script></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">Ruiyuan Wang.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
