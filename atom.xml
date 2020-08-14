@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://localhost:4000/"/>
-  <updated>2018-12-19T08:00:03.931Z</updated>
+  <updated>2020-08-14T03:02:10.069Z</updated>
   <id>http://localhost:4000/</id>
   
   <author>
@@ -17,11 +17,362 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Golang 源码阅读 - 等待队列</title>
+    <link href="http://localhost:4000/2020/01/17/go-sudog/"/>
+    <id>http://localhost:4000/2020/01/17/go-sudog/</id>
+    <published>2020-01-17T03:00:49.000Z</published>
+    <updated>2020-08-14T03:02:10.069Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;在学习 Golang 并发模型底层实现的过程，会经常碰到一个名为 &lt;code&gt;sudog&lt;/code&gt; 的结构体，比如在 &lt;code&gt;channel&lt;/code&gt; 中，或者 &lt;code&gt;sync&lt;/code&gt;  包中，&lt;code&gt;sudog&lt;/code&gt;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Golang" scheme="http://localhost:4000/tags/Golang/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Golang 源码阅读 - sync</title>
+    <link href="http://localhost:4000/2020/01/16/go-sync/"/>
+    <id>http://localhost:4000/2020/01/16/go-sync/</id>
+    <published>2020-01-16T02:59:41.000Z</published>
+    <updated>2020-08-14T03:00:19.693Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;Go 语言的 sync 包提供一些基本的同步原语，如互斥锁 Mutex，读写锁 RWMutex 等，我们会在下面依次介绍它们的实现原理。但在介绍它们之前需要了解 Go 语言中几个同步信号量的操作。&lt;/p&gt;
+&lt;h3 id=&quot;Semaphore&quot;&gt;&lt;a
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Golang" scheme="http://localhost:4000/tags/Golang/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Golang 源码阅读 - timer</title>
+    <link href="http://localhost:4000/2019/11/02/go-timer/"/>
+    <id>http://localhost:4000/2019/11/02/go-timer/</id>
+    <published>2019-11-02T02:58:44.000Z</published>
+    <updated>2020-08-14T02:59:26.062Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;Golang 里的定时功能主要是这两个结构体 &lt;code&gt;Timer&lt;/code&gt; 和 &lt;code&gt;Ticker&lt;/code&gt;，使用方法就不赘述了，直接来看具体实现吧。&lt;/p&gt;
+&lt;h3 id=&quot;结构&quot;&gt;&lt;a href=&quot;#结构&quot; class=&quot;headerlink&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Golang" scheme="http://localhost:4000/tags/Golang/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Golang 源码阅读 - netpoll</title>
+    <link href="http://localhost:4000/2019/10/20/go-netpoll/"/>
+    <id>http://localhost:4000/2019/10/20/go-netpoll/</id>
+    <published>2019-10-20T07:56:12.000Z</published>
+    <updated>2020-08-14T02:58:18.498Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;Golang 的 netpoll 在不同的操作系统底层使用的 I/O 多路复用技术不同，比如在 Linux 下使用的 epoll，Windows 下使用 iocp 等，本次源码分析主要是针对 Linux 平台进行的。&lt;/p&gt;
+&lt;h3 id=&quot;基本概念&quot;&gt;&lt;a
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Golang" scheme="http://localhost:4000/tags/Golang/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Golang 源码阅读 - context</title>
+    <link href="http://localhost:4000/2019/08/14/go-context/"/>
+    <id>http://localhost:4000/2019/08/14/go-context/</id>
+    <published>2019-08-14T02:55:14.000Z</published>
+    <updated>2020-08-14T02:55:45.784Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;context 是用来解决一组相关联的 goroutine 的同步退出及元数据传递的功能。&lt;/p&gt;
+&lt;h4 id=&quot;Context-接口&quot;&gt;&lt;a href=&quot;#Context-接口&quot; class=&quot;headerlink&quot; title=&quot;Context
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Golang" scheme="http://localhost:4000/tags/Golang/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Golang 源码阅读 - unsafe</title>
+    <link href="http://localhost:4000/2019/06/21/go-unsafe/"/>
+    <id>http://localhost:4000/2019/06/21/go-unsafe/</id>
+    <published>2019-06-21T07:37:21.000Z</published>
+    <updated>2020-08-14T03:03:01.299Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;Go 的指针相比于 C 语言指针的灵活，多了一些限制&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Go 的指针不能进行数学运算&lt;/p&gt;
+&lt;figure class=&quot;highlight go&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Golang" scheme="http://localhost:4000/tags/Golang/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Golang 源码阅读 - reflect</title>
+    <link href="http://localhost:4000/2019/06/17/go-reflect/"/>
+    <id>http://localhost:4000/2019/06/17/go-reflect/</id>
+    <published>2019-06-17T07:48:39.000Z</published>
+    <updated>2020-08-14T02:54:38.219Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h3 id=&quot;数据结构&quot;&gt;&lt;a href=&quot;#数据结构&quot; class=&quot;headerlink&quot; title=&quot;数据结构&quot;&gt;&lt;/a&gt;数据结构&lt;/h3&gt;&lt;p&gt;reflect 实现了 Golang
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Golang" scheme="http://localhost:4000/tags/Golang/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Golang 源码阅读 - for range</title>
+    <link href="http://localhost:4000/2019/06/17/go-range/"/>
+    <id>http://localhost:4000/2019/06/17/go-range/</id>
+    <published>2019-06-17T07:37:21.000Z</published>
+    <updated>2020-08-14T02:55:01.637Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;Golang 里除了经典的三段式 for 循环外，还引入了关键字 &lt;code&gt;range&lt;/code&gt;  帮我们快速遍历数组，哈希表等元素。下面我们会分析两种循环在运行时的结构和它们实现的原理。&lt;/p&gt;
+&lt;p&gt;经典 for 循环及编译后的汇编&lt;/p&gt;
+&lt;figure
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Golang" scheme="http://localhost:4000/tags/Golang/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Golang 源码阅读 - interface</title>
+    <link href="http://localhost:4000/2019/06/17/go-interface/"/>
+    <id>http://localhost:4000/2019/06/17/go-interface/</id>
+    <published>2019-06-17T07:37:21.000Z</published>
+    <updated>2020-08-14T02:54:50.937Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h3 id=&quot;数据结构&quot;&gt;&lt;a href=&quot;#数据结构&quot; class=&quot;headerlink&quot; title=&quot;数据结构&quot;&gt;&lt;/a&gt;数据结构&lt;/h3&gt;&lt;p&gt;Go 语言中的接口类型会根据 &lt;strong&gt;是否包含一组方法&lt;/strong&gt;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Golang" scheme="http://localhost:4000/tags/Golang/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Golang 源码阅读 - channel</title>
+    <link href="http://localhost:4000/2019/05/27/go-select/"/>
+    <id>http://localhost:4000/2019/05/27/go-select/</id>
+    <published>2019-05-27T05:52:01.000Z</published>
+    <updated>2020-08-14T02:52:50.379Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;在 Golang 中，select 可以让一个 goroutine 同时等待多个 channel 达到准备状态。select 和 switch 很像，不同的是 case 表达式必须与 channel 的操作相关，也就是 channel 的读写操作。&lt;/p&gt;
+&lt;h3
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Golang" scheme="http://localhost:4000/tags/Golang/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Golang 源码阅读 - channel</title>
+    <link href="http://localhost:4000/2019/05/24/go-channel/"/>
+    <id>http://localhost:4000/2019/05/24/go-channel/</id>
+    <published>2019-05-24T07:37:21.000Z</published>
+    <updated>2020-08-14T02:52:44.781Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h3 id=&quot;数据结构&quot;&gt;&lt;a href=&quot;#数据结构&quot; class=&quot;headerlink&quot; title=&quot;数据结构&quot;&gt;&lt;/a&gt;数据结构&lt;/h3&gt;&lt;p&gt;在 Golang 中 channel 都是以 hchan 结构体形式存在&lt;/p&gt;
+&lt;figure
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Golang" scheme="http://localhost:4000/tags/Golang/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Golang 源码阅读 - 并发模型</title>
+    <link href="http://localhost:4000/2019/05/10/go-gmp/"/>
+    <id>http://localhost:4000/2019/05/10/go-gmp/</id>
+    <published>2019-05-10T02:48:55.000Z</published>
+    <updated>2020-08-14T02:50:00.502Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;Go 语言中的并发模型有三个核心结构 G M P ，下面会简单回顾下基本概念，之后会详细介绍它们的实现原理及运行时的状态切换。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;G&lt;/strong&gt; 表示一个 goroutine，它的生命周期受 Go
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Golang" scheme="http://localhost:4000/tags/Golang/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Golang 源码阅读 - GC</title>
+    <link href="http://localhost:4000/2019/03/20/go-gc/"/>
+    <id>http://localhost:4000/2019/03/20/go-gc/</id>
+    <published>2019-03-20T02:47:30.000Z</published>
+    <updated>2020-08-14T02:48:19.795Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h4 id=&quot;初始化&quot;&gt;&lt;a href=&quot;#初始化&quot; class=&quot;headerlink&quot; title=&quot;初始化&quot;&gt;&lt;/a&gt;初始化&lt;/h4&gt;&lt;p&gt;GC 的初始化在 runtime.schedinit 函数里的，方法为 gcinit，主要是一些参数的设置&lt;/p&gt;
+&lt;figure
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Golang" scheme="http://localhost:4000/tags/Golang/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Golang 源码阅读 - 内存管理</title>
+    <link href="http://localhost:4000/2019/03/08/go-memory/"/>
+    <id>http://localhost:4000/2019/03/08/go-memory/</id>
+    <published>2019-03-08T02:45:57.000Z</published>
+    <updated>2020-08-14T02:47:10.148Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;Go 语言的内存分配算法来自 &lt;code&gt;TCMalloc&lt;/code&gt; ，核心的思想就是把内存分为多级管理，从而降低锁的粒度和内存碎片的数量。&lt;/p&gt;
+&lt;h3 id=&quot;基本概念&quot;&gt;&lt;a href=&quot;#基本概念&quot; class=&quot;headerlink&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Golang" scheme="http://localhost:4000/tags/Golang/"/>
+    
+  </entry>
+  
+  <entry>
     <title>当我们使用 Helm 时，可能需要考虑一些安全问题</title>
     <link href="http://localhost:4000/2018/12/19/helm-security/"/>
     <id>http://localhost:4000/2018/12/19/helm-security/</id>
     <published>2018-12-19T07:45:27.000Z</published>
-    <updated>2018-12-19T08:00:03.931Z</updated>
+    <updated>2018-12-19T08:00:03.000Z</updated>
     
     <summary type="html">
     
@@ -48,7 +399,7 @@
     <link href="http://localhost:4000/2018/12/18/k8s-admission/"/>
     <id>http://localhost:4000/2018/12/18/k8s-admission/</id>
     <published>2018-12-18T11:40:00.000Z</published>
-    <updated>2018-12-18T11:55:15.099Z</updated>
+    <updated>2018-12-18T11:55:15.000Z</updated>
     
     <summary type="html">
     
@@ -69,11 +420,38 @@
   </entry>
   
   <entry>
+    <title>Golang 源码阅读 - 函数调用</title>
+    <link href="http://localhost:4000/2018/12/10/go-func/"/>
+    <id>http://localhost:4000/2018/12/10/go-func/</id>
+    <published>2018-12-10T02:42:22.000Z</published>
+    <updated>2020-08-14T02:45:37.314Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;函数调用是大多数编程语言中的最重要的部分，理解和掌握函数的整个调用过程是深入学习一门语言必不可少的步骤。&lt;/p&gt;
+&lt;p&gt;开始前，先介绍几个概念&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;每个进程有一个栈（stack），在这个进程中每个函数被调用时分别从这个栈占用一段区域，称为帧（frame
+        
+      
+    
+    </summary>
+    
+    
+      <category term="Golang" scheme="http://localhost:4000/tags/Golang/"/>
+    
+  </entry>
+  
+  <entry>
     <title>访问 Kubernetes API - Authorization（二）</title>
     <link href="http://localhost:4000/2018/11/02/k8s-authorization/"/>
     <id>http://localhost:4000/2018/11/02/k8s-authorization/</id>
     <published>2018-11-02T08:49:51.000Z</published>
-    <updated>2018-12-18T11:57:13.072Z</updated>
+    <updated>2018-12-18T11:57:13.000Z</updated>
     
     <summary type="html">
     
@@ -99,7 +477,7 @@
     <link href="http://localhost:4000/2018/10/15/k8s-authentication/"/>
     <id>http://localhost:4000/2018/10/15/k8s-authentication/</id>
     <published>2018-10-15T07:39:29.000Z</published>
-    <updated>2018-12-18T12:21:08.045Z</updated>
+    <updated>2018-12-18T12:21:08.000Z</updated>
     
     <summary type="html">
     
@@ -128,7 +506,7 @@
     <link href="http://localhost:4000/2018/09/04/v8-build/"/>
     <id>http://localhost:4000/2018/09/04/v8-build/</id>
     <published>2018-09-04T09:33:39.000Z</published>
-    <updated>2018-09-06T06:57:09.349Z</updated>
+    <updated>2020-08-14T02:57:14.263Z</updated>
     
     <summary type="html">
     
@@ -147,80 +525,6 @@
     
     
       <category term="v8" scheme="http://localhost:4000/tags/v8/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>基于 Prometheus 的监控实践</title>
-    <link href="http://localhost:4000/2018/06/14/prometheus/"/>
-    <id>http://localhost:4000/2018/06/14/prometheus/</id>
-    <published>2018-06-14T06:13:45.000Z</published>
-    <updated>2018-12-19T07:55:22.240Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;h3 id=&quot;初衷&quot;&gt;&lt;a href=&quot;#初衷&quot; class=&quot;headerlink&quot; title=&quot;初衷&quot;&gt;&lt;/a&gt;初衷&lt;/h3&gt;&lt;p&gt;之前团队一直使用 APM (newrelic、tingyun等)
-        
-      
-    
-    </summary>
-    
-    
-      <category term="Prometheus" scheme="http://localhost:4000/tags/Prometheus/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Golang 的 for-range 循环中指针和值的区别</title>
-    <link href="http://localhost:4000/2018/04/18/golang-forRang/"/>
-    <id>http://localhost:4000/2018/04/18/golang-forRang/</id>
-    <published>2018-04-18T07:25:36.000Z</published>
-    <updated>2018-09-04T07:46:24.759Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;我们先看下面的一段代码&lt;/p&gt;
-&lt;figure class=&quot;highlight go&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span
-        
-      
-    
-    </summary>
-    
-    
-      <category term="Golang" scheme="http://localhost:4000/tags/Golang/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Kubernetes 架构浅析</title>
-    <link href="http://localhost:4000/2018/03/23/Kubernetes-architecture/"/>
-    <id>http://localhost:4000/2018/03/23/Kubernetes-architecture/</id>
-    <published>2018-03-23T06:11:25.000Z</published>
-    <updated>2018-09-04T07:46:15.572Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;最近研究了一段时间的 Kubernetes，在我们的测试环境上也搭建了一个简单的集群来学习相关的知识。月初的时候在团队做了一次 Kubernetes 架构分享，此次整理成文章记录下。&lt;/p&gt;
-&lt;h3 id=&quot;为什么要用-Kubernetes&quot;&gt;&lt;a
-        
-      
-    
-    </summary>
-    
-    
-      <category term="Kubernetes" scheme="http://localhost:4000/tags/Kubernetes/"/>
     
   </entry>
   

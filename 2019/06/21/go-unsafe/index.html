@@ -1,0 +1,71 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="Node.js Golang DevOps"><title>Golang 源码阅读 - unsafe | Ryan's Blog</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Golang 源码阅读 - unsafe</h1><a id="logo" href="/.">Ryan's Blog</a><p class="description">Whole life learning</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Golang 源码阅读 - unsafe</h1><div class="post-meta">Jun 21, 2019</div><a class="disqus-comment-count" data-disqus-identifier="2019/06/21/go-unsafe/" href="/2019/06/21/go-unsafe/#disqus_thread"></a><div class="post-content"><p>Go 的指针相比于 C 语言指针的灵活，多了一些限制</p>
+<ul>
+<li><p>Go 的指针不能进行数学运算</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a := <span class="number">1</span></span><br><span class="line">b := &amp;a</span><br><span class="line">b++</span><br></pre></td></tr></table></figure>
+<p>上面的代码不能通过编译，错误为 <code>invalid operation</code> </p>
+</li>
+<li><p>不同类型的指针不能相互转换</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a := <span class="keyword">int</span>(<span class="number">100</span>)</span><br><span class="line"><span class="keyword">var</span> f *<span class="keyword">float64</span></span><br><span class="line">f = &amp;a</span><br></pre></td></tr></table></figure>
+<p>也会报编译错误 <code>cannot use &amp;a (type *int) as type *float64 in assignment</code></p>
+</li>
+<li><p>不同类型的指针不能使用 == 或 != 比较</p>
+</li>
+<li><p>不同类型的指针变量不能相互赋值</p>
+</li>
+</ul>
+<h4 id="unsafe"><a href="#unsafe" class="headerlink" title="unsafe"></a>unsafe</h4><p>Go 的指针类型是安全的，但也有非类型安全的指针，这就是 <code>unsafe.Pointer</code> 。由于可以直接操作内存，在某些情况下会使代码更高效，当然也更危险。</p>
+<p>unsafe 包里有两个类型和三个函数</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> ArbitraryType <span class="keyword">int</span>        <span class="comment">//表示任意类型</span></span><br><span class="line"><span class="keyword">type</span> Pointer *ArbitraryType   <span class="comment">//指向任意类型的指针</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Sizeof</span><span class="params">(x ArbitraryType)</span> <span class="title">uintptr</span>    //返回 <span class="title">x</span> 所占字节数</span></span><br><span class="line"><span class="function"><span class="title">func</span> <span class="title">Offsetof</span><span class="params">(x ArbitraryType)</span> <span class="title">uintptr</span>  //返回结构体成员偏移字节数，所传参数必须是结构体的成员。</span></span><br><span class="line"><span class="function"><span class="title">func</span> <span class="title">Alignof</span><span class="params">(x ArbitraryType)</span> <span class="title">uintptr</span>   //返回参数类型的对齐值</span></span><br></pre></td></tr></table></figure>
+<p>综上所述，usnafe 包提供两种非常重要的能力：</p>
+<ul>
+<li>unsafe.Pointer 可以和 普通指针 进行相互转换</li>
+<li>unsafe.Pointer 可以和 uintptr 进行相互转换</li>
+</ul>
+<p>unsafe.Pointer 不能进行数学运算，但可以转成 uintptr 进行运算。里面的三个函数都在在编译期间执行完毕。</p>
+<h4 id="example"><a href="#example" class="headerlink" title="example"></a>example</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Person <span class="keyword">struct</span> &#123;</span><br><span class="line">	name <span class="keyword">string</span></span><br><span class="line">	age  <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	p := Person&#123;<span class="string">"张三"</span>, <span class="number">20</span>&#125;</span><br><span class="line">	fmt.Println(p)</span><br><span class="line">	name := (*<span class="keyword">string</span>)(unsafe.Pointer(&amp;p))</span><br><span class="line">	*name = <span class="string">"李四"</span></span><br><span class="line">	age := (*<span class="keyword">int</span>)(unsafe.Pointer(<span class="keyword">uintptr</span>(unsafe.Pointer(&amp;p)) + unsafe.Offsetof(p.age)))</span><br><span class="line">	*age = <span class="number">30</span></span><br><span class="line">	fmt.Println(p)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#123;张三 <span class="number">20</span>&#125;</span><br><span class="line">&#123;李四 <span class="number">30</span>&#125;</span><br></pre></td></tr></table></figure>
+</div><div class="tags"><a href="/tags/Golang/">Golang</a></div><div class="post-nav"><a class="pre" href="/2019/08/14/go-context/">Golang 源码阅读 - context</a><a class="next" href="/2019/06/17/go-reflect/">Golang 源码阅读 - reflect</a></div><div id="disqus_thread"><div class="btn_click_load"><button class="disqus_click_btn">阅读评论（请确保 Disqus 可以正常加载）</button></div><script type="text/javascript">var disqus_config = function () {
+    this.page.url = 'http://localhost:4000/2019/06/21/go-unsafe/';
+    this.page.identifier = '2019/06/21/go-unsafe/';
+    this.page.title = 'Golang 源码阅读 - unsafe';
+  };</script><script type="text/javascript" id="disqus-lazy-load-script">$.ajax({
+url: 'https://disqus.com/next/config.json',
+timeout: 2500,
+type: 'GET',
+success: function(){
+  var d = document;
+  var s = d.createElement('script');
+  s.src = '//daivd.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', + new Date());
+  (d.head || d.body).appendChild(s);
+  $('.disqus_click_btn').css('display', 'none');
+},
+error: function() {
+  $('.disqus_click_btn').css('display', 'block');
+}
+});</script><script type="text/javascript" id="disqus-click-load">$('.btn_click_load').click(() => {  //click to load comments
+    (() => { // DON'T EDIT BELOW THIS LINE
+        var d = document;
+        var s = d.createElement('script');
+        s.src = '//daivd.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', + new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+    $('.disqus_click_btn').css('display','none');
+});</script><script type="text/javascript" id="disqus-count-script">$(function() {
+     var xhr = new XMLHttpRequest();
+     xhr.open('GET', '//disqus.com/next/config.json', true);
+     xhr.timeout = 2500;
+     xhr.onreadystatechange = function () {
+       if (xhr.readyState === 4 && xhr.status === 200) {
+         $('.post-meta .post-comments-count').show();
+         var s = document.createElement('script');
+         s.id = 'dsq-count-scr';
+         s.src = 'https://daivd.disqus.com/count.js';
+         s.async = true;
+         (document.head || document.body).appendChild(s);
+       }
+     };
+     xhr.ontimeout = function () { xhr.abort(); };
+     xhr.send(null);
+   });
+</script></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"><input type="hidden" name="sitesearch" value="http://localhost:4000"></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/Golang/" style="font-size: 15px;">Golang</a> <a href="/tags/Kubernetes/" style="font-size: 15px;">Kubernetes</a> <a href="/tags/Helm/" style="font-size: 15px;">Helm</a> <a href="/tags/Prometheus/" style="font-size: 15px;">Prometheus</a> <a href="/tags/v8/" style="font-size: 15px;">v8</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/01/17/go-sudog/">Golang 源码阅读 - 等待队列</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/16/go-sync/">Golang 源码阅读 - sync</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/02/go-timer/">Golang 源码阅读 - timer</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/20/go-netpoll/">Golang 源码阅读 - netpoll</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/14/go-context/">Golang 源码阅读 - context</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/21/go-unsafe/">Golang 源码阅读 - unsafe</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/17/go-reflect/">Golang 源码阅读 - reflect</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/17/go-range/">Golang 源码阅读 - for range</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/17/go-interface/">Golang 源码阅读 - interface</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/go-select/">Golang 源码阅读 - channel</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-comment-o"> 最近评论</i></div><script type="text/javascript" src="//daivd.disqus.com/recent_comments_widget.js?num_items=5&amp;hide_avatars=1&amp;avatar_size=32&amp;excerpt_length=20&amp;hide_mods=1"></script></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2020 <a href="/." rel="nofollow">Ruiyuan Wang.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
